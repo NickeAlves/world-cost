@@ -1,7 +1,7 @@
 export default function Header() {
   return (
     <>
-      <div className="w-full fixed top-0 left-0 z-50 transition-all duration-300">
+      <div className="w-full top-0 left-0 z-50 transition-all duration-300">
         <div className="flex flex-row items-center justify-center p-2 text-white">
           <img
             src="/assets/icons8-mundo-96.png"
