@@ -5,12 +5,14 @@ import Footer from "@/components/Footer";
 import Presentation from "@/components/Presentation";
 import Moving from "@/components/Moving";
 import Tourism from "@/components/Tourism";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 
 export default function Home() {
   return (
     <div className="min-h-screen flex flex-col overflow-hidden bg-black">
       <Header />
       <main className="flex flex-col mx-auto w-full pt-12 gap-6">
+        <ScrollToTopButton />
         <section id="presentation">
           <Presentation />
         </section>
