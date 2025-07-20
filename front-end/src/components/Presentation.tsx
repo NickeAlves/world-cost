@@ -1,4 +1,7 @@
+"use client";
+
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Presentation() {
   return (
@@ -10,9 +13,13 @@ export default function Presentation() {
         className="flex flex-col justify-center items-center gap-6 max-w-2xl mx-auto pb-12"
       >
         <div className="border border-[var(--gray-light)] rounded-md p-4 w-full flex flex-col sm:flex-row justify-between items-center gap-4">
-          <h1 className="rounded-md bg-white text-black pr-4 pl-4 p-2">
+          <Link
+            href="#moving"
+            aria-label="moving"
+            className="rounded-full bg-white text-black pr-4 pl-4 p-2 hover:bg-black hover:text-white hover:border hover:border-white hover:duration-300"
+          >
             Moving?
-          </h1>
+          </Link>
           <div className="text-center sm:text-left">
             <p className="text-white text-sm">
               Thinking about relocating? Discover how your expenses might change
@@ -28,9 +35,13 @@ export default function Presentation() {
         </div>
 
         <div className="border border-[var(--gray-light)] rounded-md p-4 w-full flex flex-col sm:flex-row justify-between items-center gap-4">
-          <h1 className="bg-white rounded-md text-black pr-4 pl-4 p-2">
+          <Link
+            href="#tourism"
+            aria-label="tourism"
+            className="bg-white rounded-full text-black pr-4 pl-4 p-2 hover:bg-black hover:text-white hover:border hover:border-white hover:duration-300"
+          >
             Tourism?
-          </h1>
+          </Link>
           <div className="text-center sm:text-left">
             <p className="text-white text-sm">
               Planning your next adventure? Estimate how much your trip will
