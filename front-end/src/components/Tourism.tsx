@@ -27,9 +27,7 @@ export default function Tourism() {
             alt="tourism"
             className="h-[50px] w-auto"
           />
-          <h1 className="rounded-full p-2 pr-4 pl-4 bg-black text-white">
-            Tourism
-          </h1>
+          <h1 className="text-black text-3xl font-bold">Tourism</h1>
           <h2>
             Type the place where you want to know the cost of living (e.g.,
             Country, State, City, ...)

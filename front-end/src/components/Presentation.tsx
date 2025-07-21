@@ -21,7 +21,7 @@ export default function Presentation() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="flex flex-row justify-center items-center gap-6 max-w-2xl mx-auto pb-12"
+          className="flex flex-col md:flex-row justify-center items-center gap-6 max-w-2xl mx-auto pb-12"
         >
           <button
             onClick={() => handleSelect("moving")}
