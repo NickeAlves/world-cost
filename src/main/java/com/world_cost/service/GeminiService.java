@@ -2,8 +2,10 @@ package com.world_cost.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.world_cost.dto.request.UserPromptRequestDTO;
+import com.world_cost.dto.request.MovingRequestDTO;
+import com.world_cost.dto.request.TourismRequestDTO;
 import com.world_cost.dto.response.GeminiResponseDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -16,46 +18,72 @@ import java.util.Map;
 
 @Service
 public class GeminiService {
+
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    private final String URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+    private static final String GEMINI_API_URL =
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=";
 
-    public GeminiResponseDTO processPrompt(UserPromptRequestDTO request) {
+    private final RestTemplate restTemplate;
+    private final ObjectMapper mapper;
+
+    @Autowired
+    public GeminiService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+        this.mapper = new ObjectMapper();
+    }
+
+    public GeminiResponseDTO processMovingPrompt(MovingRequestDTO placeToMoving) {
         try {
-            String responseGemini = callGemini(request.prompt());
+            String prompt = String.format(
+                    "Please tell me the cost of living to move, including expenses for housing, food, transportation, groceries, neighborhoods, documentation, and work to %s.",
+                    placeToMoving.placeToMoving()
+            );
+            String responseGemini = callGemini(prompt);
             return new GeminiResponseDTO(responseGemini);
         } catch (Exception e) {
-            return new GeminiResponseDTO("Error while generate Gemini response: " + e.getMessage());
+            return new GeminiResponseDTO("Error while generating Gemini response: " + e.getMessage());
+        }
+    }
+
+    public GeminiResponseDTO processTourismPrompt(TourismRequestDTO placeToTourism) {
+        try {
+            String prompt = String.format(
+                    "Please tell me the cost of traveling to %s, including expenses for accommodation, food, transportation, attractions, neighborhoods, documentation, and general tourist activities.",
+                    placeToTourism.placeToTourism()
+            );
+            String responseGemini = callGemini(prompt);
+            return new GeminiResponseDTO(responseGemini);
+        } catch (Exception e) {
+            return new GeminiResponseDTO("Error while generating Gemini response: " + e.getMessage());
         }
     }
 
     private String callGemini(String prompt) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-        ObjectMapper mapper = new ObjectMapper();
-
         Map<String, Object> requestBody = new HashMap<>();
-        Map<String, String> parts = new HashMap<>();
-        parts.put("text", prompt);
-
-        requestBody.put("contents", List.of(Map.of("parts", List.of(parts))));
+        Map<String, String> part = Map.of("text", prompt);
+        Map<String, Object> content = Map.of("parts", List.of(part));
+        requestBody.put("contents", List.of(content));
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("X-goog-api-key", apiKey);
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<String> response = restTemplate.exchange(URL, HttpMethod.POST, entity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(
+                GEMINI_API_URL + apiKey,
+                HttpMethod.POST,
+                entity,
+                String.class
+        );
 
         if (response.getStatusCode() == HttpStatus.OK) {
             JsonNode root = mapper.readTree(response.getBody());
-            JsonNode candidates = root.path("candidates");
-
-            if (candidates.isArray() && candidates.size() > 0) {
-                return candidates.get(0).path("content").path("parts").get(0).path("text").asText();
-            }
+            JsonNode textNode = root.path("candidates").path(0).path("content").path("parts").path(0).path("text");
+            return textNode.isMissingNode() ? "No response text found" : textNode.asText();
         }
 
         return "Unable to get response from Gemini API";
     }
 }
+

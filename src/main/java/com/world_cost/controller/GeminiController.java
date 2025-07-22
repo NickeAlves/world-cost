@@ -1,6 +1,7 @@
 package com.world_cost.controller;
 
-import com.world_cost.dto.request.UserPromptRequestDTO;
+import com.world_cost.dto.request.MovingRequestDTO;
+import com.world_cost.dto.request.TourismRequestDTO;
 import com.world_cost.dto.response.GeminiResponseDTO;
 import com.world_cost.service.GeminiService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,8 +16,12 @@ public class GeminiController {
     @Autowired
     private GeminiService geminiService;
 
-    @PostMapping("/generate-prompt")
-    public GeminiResponseDTO generateResponse(@RequestBody UserPromptRequestDTO prompt) {
-        return geminiService.processPrompt(prompt);
+    @PostMapping("/moving")
+    public GeminiResponseDTO generateResponse(@RequestBody MovingRequestDTO placeToMoving) {
+        return geminiService.processMovingPrompt(placeToMoving);
+    }
+
+    @PostMapping("/tourism")public GeminiResponseDTO generateResponse(@RequestBody TourismRequestDTO placeToTourism) {
+        return geminiService.processTourismPrompt(placeToTourism);
     }
 }

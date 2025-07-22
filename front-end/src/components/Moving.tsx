@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Presentation from "./Presentation";
+import api from "@/services/api";
 
 export default function Moving() {
+  const [placeToMoving, setPlaceToMoving] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [apiResponse, setApiResponse] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<"presentation" | null>(
     null
   );
@@ -13,10 +18,60 @@ export default function Moving() {
     setSelectedOption(option);
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPlaceToMoving(e.target.value);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage("");
+    setApiResponse(null);
+
+    try {
+      const response = await api.costOfMoving(placeToMoving);
+      setApiResponse(response.text);
+    } catch (error) {
+      const err = error;
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : "An error occurred. Please try again."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <>
-      {!selectedOption && (
+      {apiResponse ? (
         <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8 }}
+          className="flex flex-col justify-center items-center gap-6 max-w-4xl bg-white rounded-2xl mx-auto p-6"
+        >
+          <h1 className="text-2xl font-bold text-black">
+            Moving Info for {placeToMoving}
+          </h1>
+          <p className="whitespace-pre-line text-black text-sm text-justify">
+            {apiResponse}
+          </p>
+
+          <button
+            onClick={() => {
+              setApiResponse(null);
+              setPlaceToMoving("");
+            }}
+            className="mt-4 rounded-full p-2 px-6 border text-sm hover:border-black hover:bg-black hover:text-white duration-300"
+          >
+            Search another place
+          </button>
+        </motion.div>
+      ) : !selectedOption ? (
+        <motion.form
+          onSubmit={handleSubmit}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8 }}
@@ -27,20 +82,33 @@ export default function Moving() {
             alt="moving"
             className="h-[50px] w-auto"
           />
-          <h1 className="text-black text-3xl font-bold">Moving</h1>
+          <h1 className="text-black text-3xl font-bold">Moving Info</h1>
           <h2>
-            Type the place where you want to know the cost of living (e.g.,
-            Country, State, City, ...)
+            Type the place you want to move to in order to know the cost (e.g.,
+            Country, State, City...)
           </h2>
           <input
+            id="placeToMoving"
+            name="placeToMoving"
             type="text"
-            name="place"
-            id="place"
-            className=" px-3 py-2 bg-black text-white border border-black rounded-full text-center"
+            required
+            value={placeToMoving}
+            onChange={handleChange}
+            disabled={isSubmitting}
+            className="px-3 py-2 bg-black text-white border border-black rounded-full text-center"
           />
-          <button className="rounded-full p-2 pr-4 pl-4 border text-sm hover:border-black hover:bg-black hover:text-white duration-300">
-            Search
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded-full p-2 pr-4 pl-4 border text-sm hover:border-black hover:bg-black hover:text-white duration-300"
+          >
+            {isSubmitting ? "Searching..." : "Search"}
           </button>
+
+          {errorMessage && (
+            <p className="text-red-500 text-sm">{errorMessage}</p>
+          )}
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -49,15 +117,15 @@ export default function Moving() {
           >
             <button
               onClick={() => handleSelect("presentation")}
-              className="text-white bg-black rounded-full p-2 pr-4 pl-4 items-center text-sm hover:bg-white hover:text-black hover:border hover:border-black duration-300 "
+              className="text-white bg-black rounded-full p-2 pr-4 pl-4 items-center text-sm hover:bg-white hover:text-black hover:border hover:border-black duration-300"
             >
               Back
             </button>
           </motion.div>
-        </motion.div>
+        </motion.form>
+      ) : (
+        selectedOption === "presentation" && <Presentation />
       )}
-
-      {selectedOption === "presentation" && <Presentation />}
     </>
   );
 }
