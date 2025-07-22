@@ -11,10 +11,9 @@ export default function Home() {
       <Header />
       <main className="flex flex-col mx-auto w-full pt-12 gap-6">
         <ScrollToTopButton />
-
         <Presentation />
+        <Footer />
       </main>
-      <Footer />
     </div>
   );
 }
